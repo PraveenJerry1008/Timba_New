@@ -53,19 +53,20 @@ def chat_completion(
     return content
     
     
-def text_to_speech(text: str, language_code: str = "en-IN", speaker: str = "meera") -> bytes:
+def text_to_speech(text: str, language_code: str = "en-IN", speaker: str = "shubh") -> bytes:
     """Returns raw audio bytes (WAV). language_code examples: 'ta-IN', 'en-IN'."""
     payload = {
         "inputs": [text],
         "target_language_code": language_code,
         "speaker": speaker,
+        "model": "bulbul:v3",
     }
     resp = requests.post(
         f"{SARVAM_BASE_URL}/text-to-speech", headers=_headers(), json=payload, timeout=30
     )
-    resp.raise_for_status()
+    if not resp.ok:
+        raise RuntimeError(f"Sarvam TTS error {resp.status_code}: {resp.text}")
     data = resp.json()
-    # Sarvam returns base64-encoded audio in `audios[0]`
     audio_b64 = data["audios"][0]
     return base64.b64decode(audio_b64)
 
@@ -73,10 +74,11 @@ def text_to_speech(text: str, language_code: str = "en-IN", speaker: str = "meer
 def speech_to_text(audio_bytes: bytes, language_code: str = "ta-IN") -> str:
     """audio_bytes should be a WAV file's raw bytes."""
     files = {"file": ("audio.wav", audio_bytes, "audio/wav")}
-    data = {"language_code": language_code, "model": "saarika:v2"}
+    data = {"language_code": language_code, "model": "saarika:v2.5"}
     headers = {"Authorization": f"Bearer {SARVAM_API_KEY}"}
     resp = requests.post(
         f"{SARVAM_BASE_URL}/speech-to-text", headers=headers, files=files, data=data, timeout=30
     )
-    resp.raise_for_status()
+    if not resp.ok:
+        raise RuntimeError(f"Sarvam STT error {resp.status_code}: {resp.text}")
     return resp.json()["transcript"]
