@@ -40,15 +40,18 @@ def chat_completion(system_prompt: str, messages: list[dict], max_tokens: int = 
         "messages": [{"role": "system", "content": system_prompt}, *messages],
         "max_tokens": max_tokens,
         "temperature": 0.6,
+        "reasoning_effort": None,  # disable thinking mode - not needed for narration/routing, and it can consume the whole token budget
     }
-    
     resp = requests.post(
         f"{SARVAM_BASE_URL}/v1/chat/completions", headers=_headers(), json=payload, timeout=30
     )
     if not resp.ok:
         raise RuntimeError(f"Sarvam API error {resp.status_code}: {resp.text}")
     data = resp.json()
-    return data["choices"][0]["message"]["content"]
+    content = data["choices"][0]["message"]["content"]
+    if not content:
+        raise RuntimeError(f"Sarvam returned empty content: {data}")
+    return content
     
     
 def text_to_speech(text: str, language_code: str = "en-IN", speaker: str = "meera") -> bytes:
