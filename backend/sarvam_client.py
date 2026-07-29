@@ -28,19 +28,18 @@ def _headers():
     }
 
 
-def chat_completion(system_prompt: str, messages: list[dict], max_tokens: int = 400) -> str:
-    """
-    messages: [{"role": "user"|"assistant", "content": "..."}]
-    Keep max_tokens tight - TIMBA is narrating a retrieved story, not
-    writing a novel, and shorter outputs are directly cheaper per the RAG
-    architecture discussed.
-    """
+def chat_completion(
+    system_prompt: str,
+    messages: list[dict],
+    max_tokens: int = 400,
+    reasoning_effort: str | None = "low",
+) -> str:
     payload = {
         "model": CHAT_MODEL,
         "messages": [{"role": "system", "content": system_prompt}, *messages],
         "max_tokens": max_tokens,
         "temperature": 0.6,
-        "reasoning_effort": None,  # disable thinking mode - not needed for narration/routing, and it can consume the whole token budget
+        "reasoning_effort": reasoning_effort,
     }
     resp = requests.post(
         f"{SARVAM_BASE_URL}/v1/chat/completions", headers=_headers(), json=payload, timeout=30
