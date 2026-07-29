@@ -31,7 +31,7 @@ def _headers():
 def chat_completion(
     system_prompt: str,
     messages: list[dict],
-    max_tokens: int = 400,
+    max_tokens: int = 900,
     reasoning_effort: str | None = "low",
 ) -> str:
     payload = {
