@@ -16,7 +16,7 @@ import requests
 SARVAM_API_KEY = os.getenv("SARVAM_API_KEY")
 SARVAM_BASE_URL = os.getenv("SARVAM_BASE_URL", "https://api.sarvam.ai")
 
-CHAT_MODEL = "sarvam-30b"  # swap to "sarvam-30b" for stronger reasoning, higher cost
+CHAT_MODEL = "sarvam-105b"  # swap to "sarvam-30b" for stronger reasoning, higher cost
 
 
 def _headers():
