@@ -96,6 +96,7 @@ def _llm_pick(query: str, candidates: list[dict]) -> dict:
         system_prompt=system_prompt,
         messages=[{"role": "user", "content": f'Child said: "{query}"\n\nStories:\n{listing}'}],
         max_tokens=20,
+        reasoning_effort=None,
     )
     picked_id = reply.strip().split()[0] if reply.strip() else None
     for c in candidates:
