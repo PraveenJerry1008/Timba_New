@@ -12,6 +12,12 @@ from pydantic import BaseModel
 import rag
 import sarvam_client
 import safety
+import re
+
+def _strip_leaked_markup(text: str) -> str:
+    text = re.sub(r"</?grounding_content>", "", text)
+    text = re.sub(r"(?im)^title:\s*.*$", "", text)
+    return text.strip()
 
 app = FastAPI(title="TIMBA backend")
 
@@ -56,7 +62,9 @@ You must ONLY narrate and adapt the story/content given to you below in
 what's given. You may personalize it (use the child's name if given,
 adjust a couple of details for warmth), shorten or lightly rephrase it,
 and add a gentle follow-up question - but the plot, characters, and values
-must come from the grounding content only.
+must come from the grounding content only. Never reproduce the tags <grounding_content> or the word "Title:" 
+in your reply, and never invent a different story than the one given above - speak naturally in your own voice, 
+as TIMBA talking directly to the child.
 
 {language_instruction}
 
@@ -114,6 +122,8 @@ def chat(req: ChatRequest):
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Sarvam chat call failed: {e}")
+        
+    reply = _strip_leaked_markup(reply)
 
     if not safety.is_output_safe(reply):
         return ChatResponse(reply=safety.fallback_reply(req.language))
