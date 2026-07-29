@@ -44,11 +44,11 @@ def chat_completion(system_prompt: str, messages: list[dict], max_tokens: int = 
     resp = requests.post(
         f"{SARVAM_BASE_URL}/v1/chat/completions", headers=_headers(), json=payload, timeout=30
     )
-    resp.raise_for_status()
+    if not resp.ok:
+        raise RuntimeError(f"Sarvam API error {resp.status_code}: {resp.text}")
     data = resp.json()
     return data["choices"][0]["message"]["content"]
-
-
+    
 def text_to_speech(text: str, language_code: str = "en-IN", speaker: str = "meera") -> bytes:
     """Returns raw audio bytes (WAV). language_code examples: 'ta-IN', 'en-IN'."""
     payload = {
