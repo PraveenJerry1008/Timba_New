@@ -95,11 +95,13 @@ def health():
 def chat(req: ChatRequest):
     if not safety.is_input_safe(req.message):
         return ChatResponse(reply=safety.fallback_reply(req.language))
-
-    matches = rag.retrieve(req.message, language=req.language, child_age=req.child_age, top_k=1)
+try:
+        matches = rag.retrieve(req.message, language=req.language, child_age=req.child_age, top_k=1)
+    except Exception:
+        matches = []
     if not matches:
         return ChatResponse(reply=safety.fallback_reply(req.language))
-
+    
     story = matches[0]
     system_prompt = build_system_prompt(story, req.language, req.child_name, req.child_age)
 
