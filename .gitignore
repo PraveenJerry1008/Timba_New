@@ -1,0 +1,7 @@
+audio_base64.txt 
+*.wav __pycache__/ 
+*.pyc 
+.env
+
+
+Add .gitignore
